@@ -39,8 +39,8 @@ If the back button is chosen while a food is chosen, the program breaks.
 
 ## Next Steps
 
-~~Package the program into an executable.  ~~
-~~Bug Fixes.   ~~
+~~Package the program into an executable.~~  
+~~Bug Fixes.~~  
 Allow the user to update their macros throughout the day rather than all at once.   
 Allowing macros to be set automatically based on weight, age, and gender.
 Condensing the various text files containing menu information into one file.
