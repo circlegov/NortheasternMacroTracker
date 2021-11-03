@@ -25,6 +25,7 @@ class Menus:
         self.menuData = menuData
         self.chosenFoods = []
         self.chosenNutrients = []
+        self.macros = MenuData.checkFileEmpty(self,'macros.txt', self.menuSetMacros)
 
     # first menu where you see all options
     def menuFirst(self):
