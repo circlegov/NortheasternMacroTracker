@@ -252,17 +252,14 @@ class Menus:
             # fix if someone picks an item twice/add qualifier
             foodsFileRead = open('foodsAteToday.txt', 'r')
             if os.path.exists('foodsAteToday.txt') and os.path.getsize('foodsAteToday.txt') > 0:
-                print('3')
                 foodAteToday = json.loads(foodsFileRead.read())
                 foodsFileRead.close()
                 if list(foodAteToday.keys())[0] == menuDataAccess.currentTime():
                     print('update current foods')
                 else:
-                    print('1')
                     foodAteToday = {}
                     foodAteToday[menuDataAccess.currentTime()] = {}
             else:
-                print('2')
                 foodAteToday = {}
                 foodAteToday[menuDataAccess.currentTime()] = {}
             for foodName, nutrients_used in zip(self.chosenFoods, self.chosenNutrients):
