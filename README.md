@@ -6,6 +6,10 @@ NortheasternMacroTracker is a Python tool for tracking your macros at Northeaste
 
 Install cli.py and menu.py in a new directory.
 
+or
+
+Install the executable from releases.
+
 ## Usage
 
 ```bash
@@ -16,6 +20,11 @@ or
 
 ```bash
 python3 cli.py
+```
+or
+
+```bash
+Open the executable
 ```
 
 Start by setting your macros.  
@@ -30,8 +39,8 @@ If the back button is chosen while a food is chosen, the program breaks.
 
 ## Next Steps
 
-Package the program into an executable.
-Bug Fixes.   
+~~Package the program into an executable.~~  
+~~Bug Fixes.~~  
 Allow the user to update their macros throughout the day rather than all at once.   
 Allowing macros to be set automatically based on weight, age, and gender.
 Condensing the various text files containing menu information into one file.
