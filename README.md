@@ -23,7 +23,9 @@ python3 cli.py
 ```
 or
 
+```bash
 Open the executable
+```
 
 Start by setting your macros.  
 Then continue by choosing the foods you consumed for the day.  
