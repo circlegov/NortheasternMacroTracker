@@ -245,34 +245,43 @@ class Menus:
         if confirm['confirmation'] == False:
             self.menuFoodCategory(diningLocation, mealType)
         else:
-            current_calories = 0
-            current_protein = 0
-            current_carbs = 0
-            current_fats = 0
-            # fix updating file functionality later
-            file = open('foodsAteToday.txt', 'w+')
-            if os.path.exists('foodsAteToday') and os.path.getsize('foodsAteToday') > 0:
-                foodAteToday = json.loads(file.read())
+            new_calories = 0
+            new_protein = 0
+            new_carbs = 0
+            new_fats = 0
+            # fix if someone picks an item twice/add qualifier
+            foodsFileRead = open('foodsAteToday.txt', 'r')
+            if os.path.exists('foodsAteToday.txt') and os.path.getsize('foodsAteToday.txt') > 0:
+                print('3')
+                foodAteToday = json.loads(foodsFileRead.read())
+                foodsFileRead.close()
                 if list(foodAteToday.keys())[0] == menuDataAccess.currentTime():
-                    print('damn')
+                    print('update current foods')
                 else:
+                    print('1')
                     foodAteToday = {}
                     foodAteToday[menuDataAccess.currentTime()] = {}
             else:
+                print('2')
                 foodAteToday = {}
                 foodAteToday[menuDataAccess.currentTime()] = {}
             for foodName, nutrients_used in zip(self.chosenFoods, self.chosenNutrients):
 
-                current_calories += float(nutrients_used['calories'])
-                current_protein += float(nutrients_used['protein'])
-                current_carbs += float(nutrients_used['carbohydrates'])
-                current_fats += float(nutrients_used['fats'])
+                new_calories += float(nutrients_used['calories'])
+                new_protein += float(nutrients_used['protein'])
+                new_carbs += float(nutrients_used['carbohydrates'])
+                new_fats += float(nutrients_used['fats'])
                 foodAteToday[menuDataAccess.currentTime()][foodName] = {}
                 foodAteToday[menuDataAccess.currentTime()][foodName]['calories'] = nutrients_used['calories']
                 foodAteToday[menuDataAccess.currentTime()][foodName]['protein'] = nutrients_used['protein']
                 foodAteToday[menuDataAccess.currentTime()][foodName]['carbs'] = nutrients_used['carbohydrates']
                 foodAteToday[menuDataAccess.currentTime()][foodName]['fats'] = nutrients_used['fats']
                 print(foodName, ' ', nutrients_used)
+
+            foodsFileWrite = open('foodsAteToday.txt', 'w')
+            foodsFileWrite.write(json.dumps(foodAteToday))
+            foodsFileWrite.close()
+
 
             macroFile = open('macros.txt', 'r')
             contents = json.loads(macroFile.read())
@@ -282,23 +291,43 @@ class Menus:
             goalCarb = contents['carb']
             goalFat = contents['fat']
 
-            currentMacroFile = open('currentMacros.txt', 'w+')
-            currentContents = {}
-            currentContents[menuDataAccess.currentTime()] = contents
-            newCalories = goalCalorie - current_calories
-            newProtein = goalProtein - current_protein
-            newCarbs = goalCarb - current_carbs
-            newFats = goalFat - current_fats
-            currentContents[menuDataAccess.currentTime()]['calories'] = goalCalorie - current_calories
-            currentContents[menuDataAccess.currentTime()]['protein'] = goalProtein - current_protein
-            currentContents[menuDataAccess.currentTime()]['carbs'] = goalCarb - current_carbs
-            currentContents[menuDataAccess.currentTime()]['fats'] = goalFat - current_fats
+            try:
+                if os.path.exists('currentMacros.txt') and os.path.getsize('currentMacros.txt') > 0:
+                    currentMacroFile = open('currentMacros.txt', 'r')
+                    currentContents = json.loads(currentMacroFile.read())
+                    currentMacroFile.close()
+                    if list(currentContents.keys())[0] == menuDataAccess.currentTime():
+                        currentMacroFile = open('currentMacros.txt', 'w')
+                        currentCalories = currentContents[menuDataAccess.currentTime()]['calories']
+                        currentProtein = currentContents[menuDataAccess.currentTime()]['protein']
+                        currentCarbs = currentContents[menuDataAccess.currentTime()]['carbs']
+                        currentFats = currentContents[menuDataAccess.currentTime()]['fats']
+                        currentContents[menuDataAccess.currentTime()]['calories'] = currentCalories - new_calories
+                        currentContents[menuDataAccess.currentTime()]['protein'] = currentProtein - new_protein
+                        currentContents[menuDataAccess.currentTime()]['carbs'] = currentCarbs - new_carbs
+                        currentContents[menuDataAccess.currentTime()]['fats'] = currentFats - new_fats
 
-            currentMacroFile.write(json.dumps(currentContents))
-            currentMacroFile.close()
+                        currentMacroFile.write(json.dumps(currentContents))
+                        currentMacroFile.close()
+                    else:
+                        raise ValueError('Dates dont match up')
 
-            file.write(json.dumps(foodAteToday))
-            file.close()
+                else:
+                    print('doesnt exist, create')
+                    raise ValueError('Doesn\'t exist')
+            except ValueError as e:
+                print("Error is: ", e)
+                currentMacroFile = open('currentMacros.txt', 'w+')
+                currentContents = {}
+                currentContents[menuDataAccess.currentTime()] = contents
+                currentContents[menuDataAccess.currentTime()]['calories'] = goalCalorie - new_calories
+                currentContents[menuDataAccess.currentTime()]['protein'] = goalProtein - new_protein
+                currentContents[menuDataAccess.currentTime()]['carbs'] = goalCarb - new_carbs
+                currentContents[menuDataAccess.currentTime()]['fats'] = goalFat - new_fats
+
+                currentMacroFile.write(json.dumps(currentContents))
+                currentMacroFile.close()
+
 
 
 
