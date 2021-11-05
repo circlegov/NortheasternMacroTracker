@@ -32,6 +32,8 @@ Then continue by choosing the foods you consumed for the day.
 To view your remaining daily macros, open currentMacros.txt.  
 The amount remaining will reset to the daily macro goals once the program is reopened.
 
+On the food menu with circles, press space to choose foods.
+Do not choose the Back button while foods are chosen, the program will break. Known Bug.
 ## Known Bugs
 
 If macros are not set before choosing foods, the program breaks.  
