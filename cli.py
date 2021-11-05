@@ -12,7 +12,7 @@ import os
 class NumberValidator(Validator):
     def validate(self, document):
         try:
-            int(document.text)
+            float(document.text)
         except ValueError:
             raise ValidationError(
                 message='Please enter a number',
@@ -371,7 +371,7 @@ class Menus:
 
         answers = prompt(prompts, style=custom_style_3)
         if answers['viewMacroChoices'] == 'Set New Macros':
-            self.setNewMacros()
+            self.menuSetMacros()
         elif answers['viewMacroChoices'] == 'Back':
             self.menuMacros()
         else:
@@ -389,26 +389,99 @@ class Menus:
 
         macros = {'protein': '','fat': '','carb': '', 'calories':''}
 
-        for item in ['protein','fat', 'carb', 'calories']:
-            message = f'What is your goal {item} amount?'
-            prompts = [
+        choosePromptResponse = [
+        {
+            'type': 'confirm',
+            'name': 'choose',
+            'message': 'Do you want to set your own macros(Y) or base it on your age, weight, and sex(N)?'
+        }]
+
+        choosePrompt = prompt(choosePromptResponse, style=custom_style_3)
+        if choosePrompt['choose'] == True:
+
+            for item in ['protein','fat', 'carb', 'calories']:
+                message = f'What is your goal {item} amount?'
+                macroPrompt = [
+                    {
+                        'type': 'input',
+                        'name': item,
+                        'message': message,
+                        'validate': NumberValidator, # need to brush up on classes and rewrite after
+                        'filter': lambda val: int(val) # anonymous function filters to show only int
+                    }]
+
+
+                answers = prompt(macroPrompt, style=custom_style_3)
+                confirmation = prompt(confirmationPrompt, style=custom_style_3)
+
+                while confirmation['confirmation'] == False:
+                    answers = prompt(macroPrompt, style=custom_style_3)
+                    confirmation = prompt(confirmationPrompt, style=custom_style_3)
+
+                macros[item] = list(answers.values())[0]
+
+# https://www.nasm.org/resources/calorie-calculator
+# add checks for m and f
+        elif choosePrompt['choose'] == False:
+            bioInfo = {}
+
+            sexPrompt = [
                 {
                     'type': 'input',
-                    'name': item,
-                    'message': message,
-                    'validate': NumberValidator, # need to brush up on classes and rewrite after
-                    'filter': lambda val: int(val) # anonymous function filters to show only int
+                    'name': 'sex',
+                    'message': 'What is your sex(M or F)?'
                 }]
 
-
-            answers = prompt(prompts, style=custom_style_3)
+            answers = prompt(sexPrompt, style=custom_style_3)
             confirmation = prompt(confirmationPrompt, style=custom_style_3)
 
             while confirmation['confirmation'] == False:
-                answers = prompt(prompts, style=custom_style_3)
+                answers = prompt(sexPrompt, style=custom_style_3)
                 confirmation = prompt(confirmationPrompt, style=custom_style_3)
 
-            macros[item] = list(answers.values())[0]
+            bioInfo['sex'] = list(answers.values())[0]
+
+            for item in ['age', 'weight in kg', 'height in cm', 'activity level']:
+                message = f'What is your {item}?'
+                if item == 'activity level':
+                    print('\n1.2:no activity\n1.375:light exercise 1-3 days weekly\n1.55:moderate exercise 3-5 days weekly\n1.725:heavy exercise 6-7 days weekly\n1.9:strenous training 2x everyday\n')
+
+                agePrompt = [
+                    {
+                        'type': 'input',
+                        'name': item,
+                        'message': message,
+                        'validate': NumberValidator, # need to brush up on classes and rewrite after
+                        'filter': lambda val: float(val) # anonymous function filters to show only int
+                    }]
+
+                answers = prompt(agePrompt, style=custom_style_3)
+                confirmation = prompt(confirmationPrompt, style=custom_style_3)
+
+                while confirmation['confirmation'] == False:
+                    answers = prompt(agePrompt, style=custom_style_3)
+                    confirmation = prompt(confirmationPrompt, style=custom_style_3)
+
+                bioInfo[item] = list(answers.values())[0]
+
+            if bioInfo['sex'] == 'm' or bioInfo['sex'] == 'M':
+                macros['calories'] = float(bioInfo['activity level']) * 5 + (10 * float(bioInfo['weight in kg'])) + (6.25 * float(bioInfo['height in cm'])) - (5 * bioInfo['age'])
+            elif bioInfo['sex'] == 'f' or bioInfo['sex'] == 'F':
+                macros['calories'] = float(bioInfo['activity level']) *  (10 * float(bioInfo['weight in kg'])) + (6.25 * float(bioInfo['height in cm'])) - (5 * bioInfo['age']) - 161
+
+            # calories are bmr
+            # protein is kg/activity
+            # fat is just kg
+            # carb is 52% of calories/4
+
+            macros['protein'] = float(bioInfo['weight in kg'])/float(bioInfo['activity level'])
+            macros['fat'] = float(bioInfo['weight in kg'])
+            macros['carb'] = (macros['calories'] * 0.52)/4
+
+
+#        52% carbohydrate
+#        27% fats
+#        21%  protein
 
         file = open('macros.txt', 'w+')
         file.write(json.dumps(macros))
