@@ -43,8 +43,8 @@ If the back button is chosen while a food is chosen, the program breaks.
 
 ~~Package the program into an executable.~~  
 ~~Bug Fixes.~~  
-Allow the user to update their macros throughout the day rather than all at once.   
-Allowing macros to be set automatically based on weight, age, and gender.
+~~Allow the user to update their macros throughout the day rather than all at once.~~ 
+~~Allowing macros to be set automatically based on weight, age, and gender.~~
 Condensing the various text files containing menu information into one file.
 Rewrite the MenuData class to operate solely as a menu and not update menu information.   
 Allow a user to choose their school from a list of the schools available on the Dine On Campus API.  
