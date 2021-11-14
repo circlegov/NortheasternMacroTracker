@@ -321,5 +321,93 @@ class MenuData:
         file.close()
 
         return(allItemNutrients)
+
+
+'''JEUSS SEPREPRPEPPREPREPR'''
+'''afafafa'''
+'''afafafafaf'''
+
+        def locationMenuLinks(self):
+
+            # location name : id
+            menus = json.loads(self.getData('https://api.dineoncampus.com/v1/locations/all_locations?platform=0&site_id=5751fd2b90975b60e048929a&for_menus=true&with_address=false&with_buildings=true', True))
+
+            for x in menus['buildings']:
+                for number in range(len(x['locations'])):
+                    locationId[x['locations'][number]['name']]= x['locations'][number]['id']
+                    #print(x['name'], ':\t', x['locations'][number], '\n')
+
+
+            file = open('locationId.txt','w+')
+            file.write(json.dumps(locationId))
+            file.close()
+
+            # general menu links
+            # date : location : link
+            date = self.currentTime()
+            menuLinkDict = {}
+            menuLinkDict[date] = {}
+            for x in self.location:
+                menuLinkDict[date][x] = {}
+                menuLinkDict[date][x][self.locationIds[x]] = f'https://api.dineoncampus.com/v1/location/{self.locationIds[x]}/periods?platform=0&date={date}'
+
+            file = open('generalMenuLink.txt','w+')
+            file.write(json.dumps(menuLinkDict))
+            file.close()
+
+
+            # Menu Type Ids
+            # date : location name : location id : meal name : menu id
+            date = self.currentTime()
+            locationMenuTypeIds = {}
+            locationMenuTypeIds[date] = {}
+            for locationName in self.location:
+                for locationId, link in self.generalMenuLinks[date][locationName].items():
+                    #print(locationName, locationId, link)
+                    print('Updating Menu Ids')
+                    try:
+                        menuData = json.loads(self.getData(link))
+                        menuTypes = menuData['periods']
+                        menuTypeIds = {}
+
+                        for x in menuTypes:
+                            menuTypeIds[x['name']] = x['id']
+                        locationMenuTypeIds[date][locationName] = {}
+                        locationMenuTypeIds[date][locationName][locationId] = menuTypeIds
+                    except KeyError:
+                        locationMenuTypeIds[date][locationName] = {}
+                        locationMenuTypeIds[date][locationName][locationId] = ''
+                        print('no menu available')
+            file = open('menuTypeIds.txt','w+')
+            file.write(json.dumps(locationMenuTypeIds))
+            file.close()
+
+
+
+            # date : location : meal type name : link
+
+
+            date = self.currentTime()
+            specificLinksDict = {}
+            specificLinksDict[date] = {}
+
+            #print(self.menuTypeIds)
+            for locationName in self.menuTypeIds[date]:
+                specificLinksDict[date][locationName] = {}
+                for locationId in self.menuTypeIds[date][locationName]:
+                    for mealType in self.menuTypeIds[date][locationName][locationId]:
+                        mealId = self.menuTypeIds[date][locationName][locationId][mealType]
+                        specificLinksDict[date][locationName][mealType] = f'https://api.dineoncampus.com/v1/location/{locationId}/periods/{mealId}?platform=0&date={date}'
+                        #print(f'https://api.dineoncampus.com/v1/location/{locationId}/periods/{mealId}?platform=0&date={date}')
+
+                        #print(locationName, locationId, mealType, mealId)
+
+            file = open('allSpecificLinks.txt','w+')
+            file.write(json.dumps(specificLinksDict))
+            file.close()
+
+            
+# need to scrape link for location Ids : general menu links : specific menu links
+# need to scrape another link for all other information
 #p = MenuData(['Levine Marketplace', 'International Village Dining', 'Food Hall at Stetson West'])
 #p.getAllItemNutrients()
